@@ -5,21 +5,16 @@ import boto3
 from botocore.client import Config
 
 def lambda_handler(event, context):
+    date = datetime.datetime.today().strftime('%Y%m%d')
+    url = "http://scientia.cloud/" + date + ".csv"
+    urllib.urlretrieve(url, date + "info.csv")
 
-    """Make a variable containing the date format based on YYYYYMMDD"""
-    cur_dt = datetime.datetime.today().strftime('%Y%m%d')
+    ACCESS_KEY_ID = 'test'
+    ACCESS_SECRET_KEY = 'xxxxxxxxxxxxxxx'
+    BUCKET_NAME = 'arch_mack'
+    FILE_NAME = date + "info.csv";
 
-    """Make a variable containing the url and current date based on the variable
-    cur_dt"""
-    dls = "http://11.11.111.111/XL/" + cur_dt + ".xlsx"
-    urllib.urlretrieve(dls, cur_dt + "test.xls")
-
-    ACCESS_KEY_ID = 'Abcdefg'
-    ACCESS_SECRET_KEY = 'hijklmnop+6dKeiAByFluK1R7rngF'
-    BUCKET_NAME = 'my-bicket'
-    FILE_NAME = cur_dt + "test.xls";
-
-    data = open('/tmp/' + FILE_NAME, 'wb')
+    data = open('/tmp/' + FILE_NAME, 'r')
 
     # S3 Connect
     s3 = boto3.resource(
@@ -29,5 +24,5 @@ def lambda_handler(event, context):
         config=Config(signature_version='s3v4')
     )
 
-    # Uploaded File
+    # Upload the File
     s3.Bucket(BUCKET_NAME).put(Key=FILE_NAME, Body=data, ACL='public-read')
